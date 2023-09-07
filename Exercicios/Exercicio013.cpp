@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define MAX_ALUNOS 10
+#define MAX_ALUNOS 10 
 
 class Aluno {
 private:

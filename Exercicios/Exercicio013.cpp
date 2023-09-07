@@ -46,12 +46,96 @@ public:
         nota = no;
     }
     string str() {
-        return nome + " (" + std::to_string(nota) + ")";
+        string matriculastr = to_string(matricula);
+        while (matriculastr.length() < 10) {
+          matriculastr = "0" + matriculastr;
+        }
+        string resultado = nome + " (" + matriculastr + ")";
+        if (nota != -1.0) {
+          resultado += ": " + to_string(nota);
+        }
+        return resultado;
     }
 };
 
 class Turma {
-
+private:
+    int turma;
+    string disciplina;
+    string professor;
+    Aluno *alunos[MAX_ALUNOS];
+    int numAlunos;
+public:
+    Turma() {
+        turma = 0;
+        disciplina = "";
+        professor = "";
+        numAlunos = 0;
+    }
+    Turma(int t, string d, string p) {
+        turma = t;
+        disciplina = d;
+        professor = p;
+        numAlunos = 0;
+    }
+    int obtemNumero() {
+        return turma;
+    }
+    string obtemDisciplina() {
+        return disciplina;
+    }
+    string obtemProfessor() {
+        return professor;
+    }
+    Aluno *obtemAluno(int n) {
+        if ( n >= 0 && n < numAlunos) {
+            return alunos[n];
+        }
+        return nullptr;
+    }
+    int obtemNumAlunos() {
+        return numAlunos;
+    }
+    void defineNumero(int n) {
+        turma = n;
+    }
+    void defineDisciplina(string d) {
+        disciplina = d;
+    }
+    void defineProfessor(string p) {
+        professor = p;
+    }
+    bool adicionaAluno(Aluno *aluno) {
+        if (numAlunos < 10) {
+            alunos[numAlunos] = aluno;
+            numAlunos++;
+            return true;
+        }
+        return false;
+    }
+    double calculaMedia() {
+        if (numAlunos == 0) {
+            return -1.0;
+        }
+        double total = 0.0;
+        for (int i = 0; i < numAlunos; i++) {
+            total += alunos[i]->obtemNota();
+        }
+        return total / numAlunos;
+    }
+    string str() {
+        string resultado = "\n" + to_string(turma) + " - " + disciplina + " - Prof. " + professor;
+        if (numAlunos > 0) {
+            for (int i = 0; i < numAlunos; i++) {
+              resultado += "\n" + alunos[i]->str();
+            }
+        }
+        double media = calculaMedia();
+        if (media >= 0) {
+            resultado += "\nMEDIA = " + to_string(media);
+        }
+        return resultado;
+    }
 };
 
 int main() {

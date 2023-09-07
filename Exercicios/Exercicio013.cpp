@@ -1,4 +1,4 @@
-// Exercicio001, Gabriel Dorneles Rebello (T011), construção de duas classes, sendo elas Turma e Aluno
+// Exercicio001, Gabriel Dorneles Rebello (T011), construção de duas classes, sendo elas Turma e Aluno, 07/09/2023
 
 #include <iostream>
 #include <iomanip>
@@ -48,11 +48,13 @@ public:
     string str() {
         string matriculastr = to_string(matricula);
         while (matriculastr.length() < 10) {
-          matriculastr = "0" + matriculastr;
+            matriculastr = "0" + matriculastr;
         }
         string resultado = nome + " (" + matriculastr + ")";
         if (nota != -1.0) {
-          resultado += ": " + to_string(nota);
+            string notastr = to_string(nota);
+            notastr = notastr.substr(0, 6);
+            resultado += ": " + notastr;
         }
         return resultado;
     }
@@ -114,25 +116,31 @@ public:
         return false;
     }
     double calculaMedia() {
+        int cont = 0;
         if (numAlunos == 0) {
             return -1.0;
         }
         double total = 0.0;
         for (int i = 0; i < numAlunos; i++) {
-            total += alunos[i]->obtemNota();
+            if (alunos[i]->obtemNota() != -1.0) {
+                total += alunos[i]->obtemNota();
+                cont++;
+            }
         }
-        return total / numAlunos;
+        return total / cont;
     }
     string str() {
         string resultado = "\n" + to_string(turma) + " - " + disciplina + " - Prof. " + professor;
         if (numAlunos > 0) {
             for (int i = 0; i < numAlunos; i++) {
-              resultado += "\n" + alunos[i]->str();
+                resultado += "\n" + alunos[i]->str();
             }
         }
         double media = calculaMedia();
         if (media >= 0) {
-            resultado += "\nMEDIA = " + to_string(media);
+            string mediastr = to_string(media);
+            mediastr = mediastr.substr(0, 6);
+            resultado += "\nMEDIA = " + mediastr;
         }
         return resultado;
     }

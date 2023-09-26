@@ -36,7 +36,6 @@ bool Cinema::operator<(const Cinema &c) const { return nome < c.obtemNome(); }
 istream &operator>>(istream &in, Cinema &c) {
     int num, n, s;
     string nm, log, com, bai, cep, cid, est;
-    Endereco en;
     in >> num;
     in.ignore();
     getline(in, nm);

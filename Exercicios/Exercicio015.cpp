@@ -11,13 +11,13 @@ struct Node {
     }
 };
 
-void pushFront(Node*& head, char c) {
+void pushFrente(Node*& head, char c) {
     Node* newNode = new Node(c);
     newNode->next = head;
     head = newNode;
 }
 
-void pushBack(Node*& head, char c) {
+void pushTras(Node*& head, char c) {
     Node* newNode = new Node(c);
     if (head == nullptr) {
         head = newNode;
@@ -30,7 +30,7 @@ void pushBack(Node*& head, char c) {
     }
 }
 
-void insertAtIndex(Node*& head, char c, unsigned pos) {
+void insereNoAlvo(Node*& head, char c, unsigned pos) {
     if (pos == 0) {
         pushFront(head, c);
     } else {
@@ -53,7 +53,7 @@ void insertAtIndex(Node*& head, char c, unsigned pos) {
     }
 }
 
-void popFront(Node*& head) {
+void popFrente(Node*& head) {
     if (head == nullptr) {
         cout << "ERRO" << endl;
     } else {
@@ -63,7 +63,7 @@ void popFront(Node*& head) {
     }
 }
 
-void popBack(Node*& head) {
+void popTras(Node*& head) {
     if (head == nullptr) {
         cout << "ERRO" << endl;
     } else if (head->next == nullptr) {
@@ -79,7 +79,7 @@ void popBack(Node*& head) {
     }
 }
 
-void removeAtIndex(Node*& head, unsigned pos) {
+void RemoveNoAlvo(Node*& head, unsigned pos) {
     if (head == nullptr || pos == 0) {
         cout << "ERRO" << endl;
     } else {
@@ -101,7 +101,7 @@ void removeAtIndex(Node*& head, unsigned pos) {
     }
 }
 
-void printList(const Node* head) {
+void imprimeLista(const Node* head) {
     const Node* current = head;
     while (current != nullptr) {
         cout << "|" << current->info;
@@ -110,7 +110,7 @@ void printList(const Node* head) {
     cout << "|" << endl;
 }
 
-void clearList(Node*& head) {
+void limpaLista(Node*& head) {
     while (head != nullptr) {
         Node* temp = head;
         head = head->next;
@@ -123,9 +123,7 @@ int main() {
     char op, c;
     unsigned pos;
     bool fim = false;
-
     cout << "'<' = PUSH_FRONT / '>' = PUSH_BACK / '{' = POP_FRONT / '}' = POP_BACK '+' = INSERT / '-' = REMOVE / '.' = QUIT" << endl;
-
     while (!fim) {
         printList(head);
         cin >> op;
@@ -160,7 +158,6 @@ int main() {
                 break;
         }
     }
-
-    clearList(head); // Libera a memória alocada
+    clearList(head);
     return 0;
 }

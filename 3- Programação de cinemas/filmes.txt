@@ -1,0 +1,52 @@
+1
+Besouro Azul
+14
+Ação
+2
+As Tartarugas Ninja: Caos Mutante
+10
+Animação
+3
+Barbie
+12
+Comédia
+4
+O Porteiro
+14
+Comédia
+5
+Oppenheimer
+16
+Drama
+6
+Presos na Floresta - Fuja se For Capaz
+14
+Suspense
+7
+Drácula: a Última Viagem de Demeter
+16
+Terror
+8
+Golda: a Mulher de Uma Nação
+14
+Drama
+9
+Toc Toc Toc: Ecos do Além
+16
+Terror
+10
+Fale Comigo
+16
+Terror
+11
+Gran Turismo - de Jogador a Corredor
+12
+Ação
+12
+A Chamada
+14
+Ação
+13
+Asteroid City
+14
+Dramas

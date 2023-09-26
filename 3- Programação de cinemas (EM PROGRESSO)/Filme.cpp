@@ -29,7 +29,7 @@ void Filme::defineNumero(int n) { numero = n; }
 void Filme::defineTitulo(string t) { titulo = t; }
 void Filme::defineFaixaEtaria(int f) { faixaEtaria = f; }
 void Filme::defineEstilo(string e) { estilo = e; }
-bool Filme::operator<(const Filme &f) const { return faixaEtaria < f.obtemFaixaEtaria(); }
+bool Filme::operator<(const Filme &f) const { return titulo < f.obtemTitulo(); }
 istream &operator>>(istream &in, Filme &f) { 
     string t, e; 
     int n, fa; 

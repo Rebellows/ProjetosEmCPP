@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 using namespace std;
 
@@ -12,15 +13,10 @@ struct Instruction {
     string operand;
 };
 
-struct Data {
-    string name;
-    int value;
-};
-
 class Parser {
 private:
     vector<Instruction> instructions;
-    vector<Data> data;
+    unordered_map<string, int> data;
 public:
     void parse(string &filename) {
         ifstream file(filename);
@@ -82,16 +78,18 @@ public:
 
     void parseData(string &line) {
         istringstream iss(line);
-        Data d;
-        iss >> d.name >> d.value;
-        data.push_back(d);
+        string name;
+        int value;
+
+        iss >> name >> value;
+        data[name] = value;
     }
 
     vector<Instruction> getInstructions() const {
         return instructions;
     }
 
-    vector<Data> getData() const {
+    unordered_map<string, int> getData() const {
         return data;
     }
 };

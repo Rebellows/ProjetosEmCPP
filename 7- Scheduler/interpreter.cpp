@@ -71,7 +71,7 @@ public:
             } else if (op == "SYSCALL") {
                 switch (getValue(operand)) { // precisa implementar o bloqueio de 1 a 3 no syscall para caso 1 e 2
                     case 0:
-                        exit(0);
+                        exit(0); // ver se o exit nao vai sair de tudo
                         break;
                 
                     case 1:
@@ -79,7 +79,7 @@ public:
                         break;
 
                     case 2:
-                        cin >> acc; // nao sei se isso ta certo (Uma chama de sistema referenciando o valor ‘2’ (dois) caracteriza um pedido de leitura de um valor inteiro)
+                        cin >> acc;
                         break;
 
                     default:

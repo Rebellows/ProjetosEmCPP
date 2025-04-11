@@ -29,67 +29,86 @@ private:
         }
     }
 
+    void executeSyscall(int syscallNumber) {
+        pc++;
+        switch (syscallNumber) {
+            case 0:
+                exit(0); // ainda entender se aqui eh exit mesmo
+                break;                
+            case 1:
+                cout << acc << endl;
+                break;
+            case 2:
+                cin >> acc;
+                break;
+            default:
+                cerr << "Invalid syscall number: " << syscallNumber << "\n";
+        }
+    }
+
 public:
-    Interpreter(const vector<Instruction> &instr, const unordered_map<string, int> &d) {
+    Interpreter(vector<Instruction> &instr, unordered_map<string, int> &d) {
         instructions = instr;
         data = d;
         mapLabels();
     }
 
-    void execute() {
-        while (pc < instructions.size()) {
-            const Instruction &instr = instructions[pc];
-            const string &op = instr.opcode;
-            const string &operand = instr.operand;
+    bool step() {
+        if (pc >= instructions.size()) return false;
 
-            if (op == "ADD") {
-                acc += getValue(operand);
-            } else if (op == "SUB") {
-                acc -= getValue(operand);
-            } else if (op == "MULT") {
-                acc *= getValue(operand);
-            } else if (op == "DIV") {
-                int divisor = getValue(operand);
-                if (divisor == 0) throw runtime_error("Zero division");
-                acc /= divisor;
-            } else if (op == "LOAD") {
-                acc = getValue(operand);
-            } else if (op == "STORE") {
-                data[operand] = acc;
-            } else if (op == "BRANY") {
-                pc = labels.at(operand);
-                continue;
-            } else if (op == "BRPOS" && acc > 0) {
-                pc = labels.at(operand);
-                continue;
-            } else if (op == "BRZERO" && acc == 0) {
-                pc = labels.at(operand);
-                continue;
-            } else if (op == "BRNEG" && acc < 0) {
-                pc = labels.at(operand);
-                continue;
-            } else if (op == "SYSCALL") {
-                switch (getValue(operand)) { // precisa implementar o bloqueio de 1 a 3 no syscall para caso 1 e 2
-                    case 0:
-                        exit(0); // ver se o exit nao vai sair de tudo
-                        break;
-                
-                    case 1:
-                        cout << acc << endl;
-                        break;
+        const Instruction &instr = instructions[pc];
+        const string &op = instr.opcode;
+        const string &operand = instr.operand;
 
-                    case 2:
-                        cin >> acc;
-                        break;
-
-                    default:
-                        break;
-
-                }
-            } else if (!op.empty()) {
-                cerr << "Invalid instruction: " << op << "\n";
-            }
-            pc++;
+        if (op == "ADD") {
+            acc += getValue(operand);
+        } else if (op == "SUB") {
+            acc -= getValue(operand);
+        } else if (op == "MULT") {
+            acc *= getValue(operand);
+        } else if (op == "DIV") {
+            int divisor = getValue(operand);
+            if (divisor == 0) throw runtime_error("Zero division");
+            acc /= divisor;
+        } else if (op == "LOAD") {
+            acc = getValue(operand);
+        } else if (op == "STORE") {
+            data[operand] = acc;
+        } else if (op == "BRANY") {
+            pc = labels.at(operand);
+            return true;
+        } else if (op == "BRPOS" && acc > 0) {
+            pc = labels.at(operand);
+            return true;
+        } else if (op == "BRZERO" && acc == 0) {
+            pc = labels.at(operand);
+            return true;
+        } else if (op == "BRNEG" && acc < 0) {
+            pc = labels.at(operand);
+            return true;
+        } else if (op == "SYSCALL") {
+            executeSyscall(getValue(operand));
+            return true;
+        } else if (!op.empty()) {
+            cerr << "Invalid instruction: " << op << "\n";
         }
+        pc++;
+        return true;
     }
+
+    int getSyscallCode() { // para o escalonador fazer o block se for syscall
+        if (pc >= instructions.size()) return -1;
+    
+        const Instruction &instr = instructions[pc];
+        if (instr.opcode != "SYSCALL") return -1;
+        
+        return getValue(instr.operand); 
+    }
+
+    // pra salvar contexto
+    int getACC() const { return acc; }
+    int getPC() const { return pc; }
+
+    void setACC(int value) { acc = value; }
+    void setPC(int value) { pc = value; }
 };

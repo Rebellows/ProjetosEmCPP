@@ -33,6 +33,7 @@ private:
         pc++;
         switch (syscallNumber) {
             case 0:
+                cout << "Program finished" << endl;
                 exit(0); // ainda entender se aqui eh exit mesmo
                 break;                
             case 1:
@@ -47,21 +48,27 @@ private:
     }
 
 public:
-    Interpreter(vector<Instruction> &instr, unordered_map<string, int> &d) {
+    Interpreter(vector<Instruction> instr, unordered_map<string, int> d) {
         instructions = instr;
         data = d;
+        pc = 0;
         mapLabels();
     }
 
     bool step() {
-        if (pc >= instructions.size()) return false;
+        if (pc >= instructions.size()) {
+            cout << "Program finished" << endl;
+            return false;
+        }
+
 
         const Instruction &instr = instructions[pc];
-        const string &op = instr.opcode;
-        const string &operand = instr.operand;
+        const string op = instr.opcode;
+        const string operand = instr.operand;
 
         if (op == "ADD") {
             acc += getValue(operand);
+            // cout << "Adding " << acc << endl;
         } else if (op == "SUB") {
             acc -= getValue(operand);
         } else if (op == "MULT") {
@@ -71,9 +78,11 @@ public:
             if (divisor == 0) throw runtime_error("Zero division");
             acc /= divisor;
         } else if (op == "LOAD") {
-            acc = getValue(operand);
+            acc = data[operand];
+            // cout << "LOADING " << acc << endl;
         } else if (op == "STORE") {
             data[operand] = acc;
+            // cout << "storing " << data[operand] << endl;
         } else if (op == "BRANY") {
             pc = labels.at(operand);
             return true;
@@ -87,6 +96,7 @@ public:
             pc = labels.at(operand);
             return true;
         } else if (op == "SYSCALL") {
+            // cout << "executing syscall" << endl;
             executeSyscall(getValue(operand));
             return true;
         } else if (!op.empty()) {

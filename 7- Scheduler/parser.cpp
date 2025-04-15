@@ -26,6 +26,7 @@ class Parser
 private:
     vector<Instruction> instructions;
     unordered_map<string, int> data;
+    // unordered_map<string, int> labels;
 
 public:
     void parse(string filename)

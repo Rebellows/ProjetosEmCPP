@@ -13,7 +13,7 @@ private:
     void mapLabels() {
         for (int i = 0; i < instructions.size(); i++) {
             if (!instructions[i].label.empty()) {
-                labels[instructions[i].label] = i;
+                labels[instructions[i].label] = i+1;
             }
         }
     }

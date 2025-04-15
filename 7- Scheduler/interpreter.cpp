@@ -66,6 +66,8 @@ public:
         const string op = instr.opcode;
         const string operand = instr.operand;
 
+        cout << op << " " << operand << endl;
+
         if (op == "ADD") {
             acc += getValue(operand);
             // cout << "Adding " << acc << endl;
@@ -87,12 +89,15 @@ public:
             pc = labels.at(operand);
             return true;
         } else if (op == "BRPOS" && acc > 0) {
+            cout << "label " << operand << endl;
             pc = labels.at(operand);
             return true;
         } else if (op == "BRZERO" && acc == 0) {
+            cout << "label " << operand << endl;
             pc = labels.at(operand);
             return true;
         } else if (op == "BRNEG" && acc < 0) {
+            cout << "-----------------label " << operand << endl;
             pc = labels.at(operand);
             return true;
         } else if (op == "SYSCALL") {

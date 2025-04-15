@@ -66,11 +66,10 @@ public:
         const string op = instr.opcode;
         const string operand = instr.operand;
 
-        cout << op << " " << operand << endl;
+        // printf("%-8s %-10s\t", op.c_str(), operand.c_str());
 
         if (op == "ADD") {
             acc += getValue(operand);
-            // cout << "Adding " << acc << endl;
         } else if (op == "SUB") {
             acc -= getValue(operand);
         } else if (op == "MULT") {
@@ -81,31 +80,29 @@ public:
             acc /= divisor;
         } else if (op == "LOAD") {
             acc = data[operand];
-            // cout << "LOADING " << acc << endl;
         } else if (op == "STORE") {
             data[operand] = acc;
-            // cout << "storing " << data[operand] << endl;
         } else if (op == "BRANY") {
+            cout << "-------------------label " << operand<< "   ";
             pc = labels.at(operand);
             return true;
         } else if (op == "BRPOS" && acc > 0) {
-            cout << "label " << operand << endl;
+            cout << "-------------------label " << operand << "   ";
             pc = labels.at(operand);
             return true;
         } else if (op == "BRZERO" && acc == 0) {
-            cout << "label " << operand << endl;
+            cout << "------------------label " << operand << "   " ;
             pc = labels.at(operand);
             return true;
         } else if (op == "BRNEG" && acc < 0) {
-            cout << "-----------------label " << operand << endl;
+            cout << "-----------------label " << operand << "   ";
             pc = labels.at(operand);
             return true;
         } else if (op == "SYSCALL") {
-            // cout << "executing syscall" << endl;
             executeSyscall(getValue(operand));
             return true;
-        } else if (!op.empty()) {
-            cerr << "Invalid instruction: " << op << "\n";
+        } else  if (!op.empty()) {
+            cerr << "Invalid instruction: " << op << "   ";
         }
         pc++;
         return true;

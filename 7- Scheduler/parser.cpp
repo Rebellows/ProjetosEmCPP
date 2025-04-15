@@ -109,7 +109,6 @@ public:
             restStream >> op >> instr.operand;
             op = to_upper_casae(op);
             instr.opcode = op;
-            // restStream >> instr.opcode >> instr.operand;
         }
         else
         {

@@ -33,8 +33,8 @@ private:
         pc++;
         switch (syscallNumber) {
             case 0:
-                cout << "Program finished" << endl;
-                exit(0); // ainda entender se aqui eh exit mesmo
+                // cout << "Program finished" << endl;
+                // exit(0); // ainda entender se aqui eh exit mesmo
                 break;                
             case 1:
                 cout << acc << endl;
@@ -56,8 +56,8 @@ public:
     }
 
     bool step() {
+        // cout << "pc: " << pc << " acc: " << acc << " instr: "<< instructions.size()<< endl;
         if (pc >= instructions.size()) {
-            cout << "Program finished" << endl;
             return false;
         }
 

@@ -1,34 +1,3 @@
-// #include "pcb.cpp"
-// #include <unistd.h>
-
-// int main()
-// {
-//     cout << "Starting Program..." << endl;
-//     while (true)
-//     {
-//         Parser parser;
-//         parser.parse("prog2.txt");
-//         cout << "Program Parsed" << endl;
-//         // for (auto c : parser.getInstructions())
-//         // {
-//         //     cout << c.to_string() << endl;
-//         // }
-//         // for(auto  c : parser.getData()){
-//         //     printf("%s %d\n", c.first.c_str(), c.second);
-//         // }
-//         Interpreter interpreter(parser.getInstructions(), parser.getData());
-//         while (interpreter.step())
-//         {
-//             // cout << "pc: " << interpreter.getPC() << " | " << "acc: " << interpreter.getACC() << endl;
-//             printf("pc: %3d | acc: %3d\n", interpreter.getPC(), interpreter.getACC());   
-//             usleep(20000);
-//         }
-        
-//         return 0;
-//     }
-// }
-
-
 #include "scheduler.cpp"
 #include <unistd.h>
 #include <vector>
@@ -64,6 +33,8 @@ int main() {
         scheduler.addPCB(pcb);
     }
 
+    cout << "PCBs carregados." << " Total de processos: " << scheduler.getPCBCount() << endl;
+
     // Loop principal do escalonador
     while (scheduler.getPCBCount() > 0) {
         scheduler.tick();
@@ -71,6 +42,7 @@ int main() {
 
         PCB* running = scheduler.getNextPCB();
         if (!running) {
+            cout << "Nenhum processo em execução." << endl;
             usleep(100000);
             continue;
         }

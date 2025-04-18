@@ -3,7 +3,7 @@ all: 	main
 
 
 main: main.cpp interpreter.o parser.o pcb.o scheduler.o
-	g++ -o main main.cpp interpreter.o parser.o pcb.o scheduler.o
+	g++ -o main main.cpp interpreter.o parser.o pcb.o scheduler.o -Wall
 
 interpreter.o: interpreter.cpp
 	g++ -c interpreter.cpp

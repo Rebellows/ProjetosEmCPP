@@ -19,12 +19,14 @@ public:
         PCB* selected = pcbs_ready.front();
         selected->state = RUNNING;
         pcbs_ready.erase(pcbs_ready.begin());
+        cout << "Running " << selected->to_string() << endl;
         return selected;
     }
 
     void removePCB(PCB* pcb) {
         pcb->state = TERMINATED;
         pcbs_ready.erase(remove(pcbs_ready.begin(), pcbs_ready.end(), pcb), pcbs_ready.end());
+        cout << "Terminated " << pcb->to_string() << endl;
     }
 
     void blockPCB(PCB* pcb, int syscallCode) {

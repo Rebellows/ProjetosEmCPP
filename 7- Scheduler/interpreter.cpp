@@ -13,7 +13,7 @@ private:
     void mapLabels() {
         for (int i = 0; i < instructions.size(); i++) {
             if (!instructions[i].label.empty()) {
-                labels[instructions[i].label] = i;
+                labels[instructions[i].label] = i+1;
             }
         }
     }
@@ -33,6 +33,7 @@ private:
         pc++;
         switch (syscallNumber) {
             case 0:
+                cout << "Program finished" << endl;
                 exit(0); // ainda entender se aqui eh exit mesmo
                 break;                
             case 1:
@@ -47,18 +48,25 @@ private:
     }
 
 public:
-    Interpreter(vector<Instruction> &instr, unordered_map<string, int> &d) {
+    Interpreter(vector<Instruction> instr, unordered_map<string, int> d) {
         instructions = instr;
         data = d;
+        pc = 0;
         mapLabels();
     }
 
     bool step() {
-        if (pc >= instructions.size()) return false;
+        if (pc >= instructions.size()) {
+            cout << "Program finished" << endl;
+            return false;
+        }
+
 
         const Instruction &instr = instructions[pc];
-        const string &op = instr.opcode;
-        const string &operand = instr.operand;
+        const string op = instr.opcode;
+        const string operand = instr.operand;
+
+        // printf("%-8s %-10s\t", op.c_str(), operand.c_str());
 
         if (op == "ADD") {
             acc += getValue(operand);
@@ -71,26 +79,30 @@ public:
             if (divisor == 0) throw runtime_error("Zero division");
             acc /= divisor;
         } else if (op == "LOAD") {
-            acc = getValue(operand);
+            acc = data[operand];
         } else if (op == "STORE") {
             data[operand] = acc;
         } else if (op == "BRANY") {
+            cout << "-------------------label " << operand<< "   ";
             pc = labels.at(operand);
             return true;
         } else if (op == "BRPOS" && acc > 0) {
+            cout << "-------------------label " << operand << "   ";
             pc = labels.at(operand);
             return true;
         } else if (op == "BRZERO" && acc == 0) {
+            cout << "------------------label " << operand << "   " ;
             pc = labels.at(operand);
             return true;
         } else if (op == "BRNEG" && acc < 0) {
+            cout << "-----------------label " << operand << "   ";
             pc = labels.at(operand);
             return true;
         } else if (op == "SYSCALL") {
             executeSyscall(getValue(operand));
             return true;
-        } else if (!op.empty()) {
-            cerr << "Invalid instruction: " << op << "\n";
+        } else  if (!op.empty()) {
+            cerr << "Invalid instruction: " << op << "   ";
         }
         pc++;
         return true;

@@ -37,7 +37,7 @@ public:
         }
     }
 
-    void tick() {
+    void tick(int currentTime) {
         // Atualiza processos bloqueados
         for (int i = 0; i < pcbs_waiting.size(); i++) {
             PCB* pcb = pcbs_waiting[i];
@@ -50,10 +50,20 @@ public:
                 i--;
             }
         }
-
-        // Atualiza deadlines
-        for (PCB* pcb : pcbs_ready) {
-            pcb->deadline--;
+        // Verifica deadlines perdidos e reativa tarefas periódicas
+        for (int i = 0; i < pcbs_ready.size(); i++) {
+            PCB* pcb = pcbs_ready[i];
+            if (pcb->deadline < currentTime) {
+                cout << "[Deadline Perdido] Processo " << pcb->pid << " perdeu o deadline no tempo " << currentTime << endl;
+                // Reativa a tarefa para o próximo período
+                pcb->arrivalTime += pcb->period;
+                pcb->deadline = pcb->arrivalTime + pcb->period;
+                pcb->remainingTime = pcb->wcet;
+                pcb->interpreter.setACC(0);
+                pcb->interpreter.setPC(0);
+                pcb->pc_pcb = 0;
+                pcb->acc_pcb = 0;
+            }
         }
     }
 

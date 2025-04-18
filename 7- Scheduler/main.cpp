@@ -24,12 +24,12 @@ int main() {
         PCB* pcb = new PCB(
             proximoPID++,
             tempoAtual,
-            10 + rand() % 10, // período aleatório
+            3,
             5, // WCET fictício
             parser.getInstructions(),
             parser.getData()
         );
-        
+
         scheduler.addPCB(pcb);
     }
 
@@ -37,7 +37,7 @@ int main() {
 
     // Loop principal do escalonador
     while (scheduler.getPCBCount() > 0) {
-        scheduler.tick();
+        scheduler.tick(tempoAtual);
         tempoAtual++;
 
         PCB* running = scheduler.getNextPCB();
@@ -54,13 +54,25 @@ int main() {
         // Executa uma instrução
         if (running->interpreter.step()) {
             int syscallCode = running->interpreter.getSyscallCode();
+            running->remainingTime--;
 
             // Salva contexto
             running->acc_pcb = running->interpreter.getACC();
             running->pc_pcb = running->interpreter.getPC();
 
-            if (syscallCode == 2) {
+            if (syscallCode == 1 || syscallCode == 2) {
                 scheduler.blockPCB(running, syscallCode);
+            } else if (running->remainingTime <= 0) {
+                // Reage para o próximo período
+                running->arrivalTime += running->period;
+                running->deadline = running->arrivalTime + running->period;
+                running->remainingTime = running->wcet;
+                running->interpreter.setACC(0);
+                running->interpreter.setPC(0);
+                running->pc_pcb = 0;
+                running->acc_pcb = 0;
+                running->state = READY;
+                scheduler.addPCB(running);
             } else {
                 running->state = READY;
                 scheduler.addPCB(running);

@@ -16,7 +16,14 @@ public:
     }
 
     PCB* getNextPCB() {
-        if (pcbs_ready.empty()) return nullptr;
+ 
+        if (pcbs_ready.empty()&& runningPCB == nullptr) {
+            cout << "No process ready to run." << endl;
+            return nullptr;
+
+        }
+        if(runningPCB!= nullptr)pcbs_ready.push_back(runningPCB);
+        
         sortReadyQueue();
         runningPCB = pcbs_ready.front();
         pcbs_ready.erase(pcbs_ready.begin());
@@ -50,16 +57,13 @@ public:
     }
     
 
-    void tick(int currentTime) {
+    void tick(int currentTime, bool flag_sys) {
+        
         cout<< pcbs_ready.size() << " processos prontos, "
             << pcbs_waiting.size() << " bloqueados, "
             << (runningPCB ? "1 em execução" : "nenhum em execução") << endl;
-            for(PCB* p : pcbs_ready) {
-                cout << p->to_string() << endl;
-            }
-            for(PCB* p : pcbs_waiting) {
-                cout << p->to_string() << endl;
-            }
+        
+         
         // 1) Atualiza bloqueados
         for (int i = 0; i < pcbs_waiting.size(); ++i) {
             PCB* p = pcbs_waiting[i];
@@ -69,7 +73,7 @@ public:
                 pcbs_waiting.erase(pcbs_waiting.begin() + i--);
             }
         }
-
+        
         // 2) Tratar deadlines perdidos
         for (PCB* p : pcbs_ready) {
             if (p->deadline < currentTime) {
@@ -82,18 +86,25 @@ public:
                 p->pc_pcb = p->acc_pcb = 0;
             }
         }
-
+       
         // 3) Preempção se necessário
         sortReadyQueue();
         checkPreemption();
-
+        
         // 4) Executa “um tick” no runningPCB
         if (runningPCB) {
             if (--runningPCB->remainingTime <= 0) {
+                cout<<"oi"<<endl;
                 // Termina aqui
                 cout << "[Concluído] PID " << runningPCB->pid << " no t=" << currentTime << endl;
                 removePCB(runningPCB);
             }
+        }
+        cout<<runningPCB->to_string()<<endl;
+        if (flag_sys) {
+            cout << "Syscall0 detected, blocking process." << endl;
+            delete runningPCB;
+            runningPCB = nullptr;
         }
     }
 
@@ -110,7 +121,7 @@ private:
              [](PCB* a, PCB* b){
                  if (a->deadline != b->deadline)
                      return a->deadline < b->deadline;
-                 return a->arrivalTime < b->arrivalTime;  // desempate
+                 return a->arrivalTime < b->arrivalTime;  
              });
     }
 

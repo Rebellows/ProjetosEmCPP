@@ -33,6 +33,7 @@ private:
         pc++;
         switch (syscallNumber) {
             case 0:
+            getSyscallCode(1); 
                 // cout << "Program finished" << endl;
                 // exit(0); // ainda entender se aqui eh exit mesmo
                 break;                
@@ -105,10 +106,14 @@ public:
             cerr << "Invalid instruction: " << op << "   ";
         }
         pc++;
+        cout<< "OP"<< op << "  PC: " << pc << " ACC: " << acc << endl;
         return true;
     }
 
-    int getSyscallCode() { // para o escalonador fazer o block se for syscall
+    int getSyscallCode(int flag_sys = 0) { // para o escalonador fazer o block se for syscall
+        if(flag_sys == 1){
+            return 0;
+        }
         if (pc >= instructions.size()) return -1;
     
         const Instruction &instr = instructions[pc];

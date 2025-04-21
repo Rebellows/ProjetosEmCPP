@@ -24,28 +24,36 @@ int main() {
         PCB* pcb = new PCB(
             proximoPID++,
             tempoAtual,
-            3,
-            5, // WCET fictício
+            6,
+            3, // WCET fictício
             parser.getInstructions(),
             parser.getData()
         );
 
         scheduler.addPCB(pcb);
     }
+    srand(time(NULL));
+    cout << "PCBs carregados. Total de processos: " << scheduler.getPCBCount() << endl;
 
-    cout << "PCBs carregados." << " Total de processos: " << scheduler.getPCBCount() << endl;
+    PCB* running = nullptr;
 
-    // Loop principal do escalonador
     while (scheduler.getPCBCount() > 0) {
+        cout << "[t=" << tempoAtual << "] ";
+
         scheduler.tick(tempoAtual);
         tempoAtual++;
 
-        PCB* running = scheduler.getNextPCB();
+        if (!running) {
+            running = scheduler.getNextPCB();
+        }
+
         if (!running) {
             cout << "Nenhum processo em execução." << endl;
             usleep(100000);
             continue;
         }
+
+        cout << "-> Executando PID " << running->pid << endl;
 
         // Restaura contexto
         running->interpreter.setACC(running->acc_pcb);
@@ -62,28 +70,33 @@ int main() {
 
             if (syscallCode == 1 || syscallCode == 2) {
                 scheduler.blockPCB(running, syscallCode);
+                running = nullptr; // foi bloqueado, próximo ciclo pega outro
             } else if (running->remainingTime <= 0) {
                 // Reage para o próximo período
                 running->arrivalTime += running->period;
-                running->deadline = running->arrivalTime + running->period;
+                running->deadline    = running->arrivalTime + running->period;
                 running->remainingTime = running->wcet;
                 running->interpreter.setACC(0);
                 running->interpreter.setPC(0);
                 running->pc_pcb = 0;
                 running->acc_pcb = 0;
-                running->state = READY;
+                running->state    = READY;
                 scheduler.addPCB(running);
+                running = nullptr; // voltou para fila
             } else {
                 running->state = READY;
                 scheduler.addPCB(running);
+                running = nullptr; // voltou para fila
             }
         } else {
+            // Processo terminou de fato
             scheduler.removePCB(running);
             cout << "Processo " << running->pid << " finalizado." << endl;
             delete running;
+            running = nullptr;
         }
 
-        usleep(100000); // Espera 100ms
+        usleep(100000);
     }
 
     cout << "Todos os processos terminaram." << endl;

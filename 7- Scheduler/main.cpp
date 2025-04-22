@@ -7,7 +7,6 @@
 #include <vector>
 #include <iostream>
 
-
 int main() {
     srand(time(NULL));  // para os SYSCALLs com bloqueio aleatório
     Scheduler scheduler;
@@ -33,7 +32,7 @@ int main() {
     scheduler.addPCB(pcb);
 
     Parser parser2;
-     parser2.parse(arquivos[1]);
+    parser2.parse(arquivos[1]);
     PCB* pcb2 = new PCB(
         proximoPID++,
         entry_time,
@@ -41,7 +40,7 @@ int main() {
         48, 
         parser2.getInstructions(),
         parser2.getData()
-        );
+    );
     allProcesses.push_back(pcb2);
     scheduler.addPCB(pcb2);
     
@@ -52,7 +51,7 @@ int main() {
     PCB* running = new PCB(0, 0, 0, 0, {}, {});
     while (true && currentTime < 1000) {
         currentTime++;
-        cout << "Tempo atual: " << currentTime << endl;
+        cout << "[TEMPO ATUAL " << currentTime << "]" << endl;
             
             init = 0;
             if(flag_sys){
@@ -69,17 +68,8 @@ int main() {
 
                 running = scheduler.getNextPCB();
                 if (running && !(running->state == BLOCKED)) {
-                    cout << "Executando PID " << running->pid << endl;
-                    cout << "Instruções: " << running->instructions.size() << endl;
-                    cout << "Dados: " << running->data.size() << endl;
-                    cout << "Estado: " << running->state << endl;
-                    cout << "Tempo restante: " << running->remainingTime << endl;
-                    cout << "Deadline: " << running->deadline << endl;
-                    cout << "Tempo de chegada: " << running->arrivalTime << endl;
-                    cout << "PC: " << running->interpreter.getPC() << endl;
-                    cout << "ACC: " << running->interpreter.getACC() << endl;
-                    cout << "Estado do processo: " << running->to_string() << endl;
-        
+                    // cout << "PROCESS STATE: " << endl << running->to_string() << endl;
+
 
                     // Restaura contexto do processo antes de executar
                     running->interpreter.setPC(running->pc_pcb);
@@ -92,7 +82,7 @@ int main() {
                     running->acc_pcb = running->interpreter.getACC();
                 
                     if (!keepRunning) {
-                        cout << "[Finalizado] PID " << running->pid << " completou o programa." << endl;
+                        cout << "[FINISHED] PID " << "[PID " << running->pid << "]" << " completed the program." << endl;
                         scheduler.removePCB(running, currentTime);
                     } else if (running->interpreter.getSyscallCode() == 2) {
                         scheduler.blockPCB(running, 2);
@@ -111,6 +101,6 @@ int main() {
         }   
     }
 
-    cout << "Simulação EDF finalizada no tempo t=" << currentTime << endl;
+    cout << "Simulação EDF finalizada no tempo t = " << currentTime << endl;
     return 0;
 }

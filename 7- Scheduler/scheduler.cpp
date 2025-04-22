@@ -29,7 +29,7 @@ public:
         runningPCB = pcbs_ready.front();
         pcbs_ready.erase(pcbs_ready.begin());
         if (runningPCB->state != BLOCKED) runningPCB->state = RUNNING;
-        cout << "Running " << runningPCB->to_string() << endl;
+        // cout << "Running " << runningPCB->to_string() << endl;
         return runningPCB;
     }
 
@@ -62,13 +62,13 @@ public:
 
     void tick(int currentTime, bool flag_sys, PCB* pcb) {
         
-        cout<< pcbs_ready.size() << " processos prontos, " << endl;
+        // cout<< pcbs_ready.size() << " ready processes, " << endl;
          
         // 1) Atualiza bloqueados
         cout<<pcb->to_string()<<endl;
         if(pcb != nullptr && pcb->state == BLOCKED) {
             if (--pcb->blockedRemainingTime < 0) {
-                cout<< "[Desbloqueado] PID " << pcb->pid << " no t=" << currentTime << endl;
+                cout<< "[UNLOCKED] [PID " << pcb->pid << "] on T = " << currentTime << endl;
                 pcb->state = READY;
                 pcbs_ready.push_back(pcb);
                 
@@ -79,7 +79,7 @@ public:
         // 2) Tratar deadlines perdidos
         for (PCB* p : pcbs_ready) {
             if (p->deadline < currentTime) {
-                cout << "[Deadline Perdido] PID " << p->pid << " no t=" << currentTime << endl;
+                cout << "[LOST DEADLINE] [PID " << p->pid << "] on T = " << currentTime << endl;
                 p->arrivalTime += p->period;
                 p->deadline     = p->arrivalTime + p->period;
                 p->remainingTime = p->wcet;
@@ -97,14 +97,14 @@ public:
         if (runningPCB) {
             if (--runningPCB->remainingTime <= 0) {
                 // Termina aqui
-                cout << "[Concluído] PID " << runningPCB->pid << " no t=" << currentTime << endl;
+                cout << "[COMPLETED] [PID " << runningPCB->pid << "] on T = " << currentTime << endl;
                 removePCB(runningPCB, currentTime);
             }
         }
         cout<<runningPCB->to_string()<<endl;
         if (flag_sys) {
-            cout << "Syscall0 detected," << endl;
-            cout << "[Concluído] PID " << runningPCB->pid << " no t=" << currentTime << endl;
+            cout << "Syscall 0 detected," << endl;
+            cout << "[COMPLETED] [PID " << runningPCB->pid << "] on T = " << currentTime << endl;
             removePCB(runningPCB, currentTime);
             runningPCB = nullptr;
         }
@@ -129,8 +129,8 @@ private:
         if (!runningPCB || pcbs_ready.empty()) return;
         PCB* next = pcbs_ready.front();
         if (next->deadline < runningPCB->deadline) {
-            cout << "[Preempção] " << runningPCB->pid
-                 << " por " << next->pid << endl;
+            cout << "[PREEPTATION] " << runningPCB->pid
+                 << " for [PID " << next->pid << "]" << endl;
             runningPCB->state = READY;
             pcbs_ready.push_back(runningPCB);
             sortReadyQueue();

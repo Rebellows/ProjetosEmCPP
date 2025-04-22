@@ -13,15 +13,25 @@ struct PCB {
     vector<Instruction> instructions;
     unordered_map<string, int> data;
     Interpreter interpreter;
+
+    string getInstructions(){
+        stringstream ss;
+        for (Instruction instrucition : instructions) {
+            ss << "  -" << instrucition.to_string() << endl;
+        }
+        return ss.str();
+    }
+
     string to_string() {
         stringstream ss;
-        ss << "PID: " << pid << endl;
-        ss << "Arrival Time: " << arrivalTime << endl;
-        ss << "Period: " << period << endl;
-        ss << "Deadline: " << deadline << endl;
-        ss << "WCET: " << wcet << endl;
-        ss << "Remaining Time: " << remainingTime << endl;
-        ss << "State: " << (state == NEW ? "NEW" : state == READY ? "READY" : state == BLOCKED ? "BLOCKED" : state == RUNNING ? "RUNNING" : "TERMINATED") << endl;
+        ss << "[PID " << pid << "]" << endl;
+        ss << " - STATE: " << (state == NEW ? "NEW" : state == READY ? "READY" : state == BLOCKED ? "BLOCKED" : state == RUNNING ? "RUNNING" : "TERMINATED") << endl;
+        // ss << " - INTRUÇÕES: " << endl <<  getInstructions() << endl;
+        ss << " - ARRIVAL TIME: " << arrivalTime << endl;
+        ss << " - PERIOD: " << period << endl;
+        ss << " - DEADLINE: " << deadline << endl;
+        ss << " - WCET: " << wcet << endl;
+        ss << " - REMAINING TIME: " << remainingTime << endl;
         return ss.str();
     }
 

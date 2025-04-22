@@ -129,7 +129,7 @@ private:
         if (!runningPCB || pcbs_ready.empty()) return;
         PCB* next = pcbs_ready.front();
         if (next->deadline < runningPCB->deadline) {
-            cout << "[PREEPTATION] " << runningPCB->pid
+            cout << "[PREEMPTION] " << runningPCB->pid
                  << " for [PID " << next->pid << "]" << endl;
             runningPCB->state = READY;
             pcbs_ready.push_back(runningPCB);

@@ -17,32 +17,79 @@ int main() {
     int entry_time = 0;
     int proximoPID = 1;
 
-    Parser parser;
 
-    parser.parse(arquivos[0]);
-    PCB* pcb = new PCB(
-        proximoPID++,
-        entry_time,
-        18,
-        9, 
-        parser.getInstructions(),
-        parser.getData()
-    );
-    allProcesses.push_back(pcb);
-    scheduler.addPCB(pcb);
+    while (true) {
+        cout << "1 - Ler Tarefa" << endl;
+        cout << "2 - Rodar" << endl;
+        cout << "3 - Exit" << endl;
+        string input;
+        getline(cin, input);
+        if (input == "1") {
+            Parser parser;
+            cout << "Digite o nome do arquivo:" << endl;
+            string filename;
+            getline(cin, filename);
+            parser.parse(filename);
 
-    Parser parser2;
-    parser2.parse(arquivos[1]);
-    PCB* pcb2 = new PCB(
-        proximoPID++,
-        entry_time,
-        96,
-        48, 
-        parser2.getInstructions(),
-        parser2.getData()
-    );
-    allProcesses.push_back(pcb2);
-    scheduler.addPCB(pcb2);
+            // Coletar dados adicionais
+            cout << "Digite o Arrival Time (instante de carga): ";
+            int arrivalTime;
+            cin >> arrivalTime;
+            cin.ignore();
+
+            cout << "Digite o Tempo de Computação (Ci): ";
+            int wcet;
+            cin >> wcet;
+            cin.ignore();
+
+            cout << "Digite o Período (Pi): ";
+            int period;
+            cin >> period;
+            cin.ignore();
+
+            PCB* pcb = new PCB(
+                proximoPID++,
+                arrivalTime,
+                period,
+                wcet,
+                parser.getInstructions(),
+                parser.getData()
+            );
+            allProcesses.push_back(pcb);
+            scheduler.addPCB(pcb);
+        } else if (input == "2") {
+            break;
+        } else if (input == "3") {
+            return 0;
+        } else {
+            cout << "Opção inválida.\n";
+        }
+    }
+
+    // parser.parse(arquivos[0]);
+    // PCB* pcb = new PCB(
+    //     proximoPID++,
+    //     entry_time,
+    //     18,
+    //     9, 
+    //     parser.getInstructions(),
+    //     parser.getData()
+    // );
+    // allProcesses.push_back(pcb);
+    // scheduler.addPCB(pcb);
+
+    // Parser parser2;
+    // parser2.parse(arquivos[1]);
+    // PCB* pcb2 = new PCB(
+    //     proximoPID++,
+    //     entry_time,
+    //     96,
+    //     48, 
+    //     parser2.getInstructions(),
+    //     parser2.getData()
+    // );
+    // allProcesses.push_back(pcb2);
+    // scheduler.addPCB(pcb2);
     
     
     bool flag_sys = false;

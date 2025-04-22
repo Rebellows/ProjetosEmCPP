@@ -22,16 +22,25 @@ struct PCB {
         return ss.str();
     }
 
+    string centerText(const std::string& text, size_t width) {
+        if (text.length() >= width)
+            return text;
+        size_t leftPadding = (width - text.length()) / 2;
+        size_t rightPadding = width - text.length() - leftPadding;
+        return std::string(leftPadding, ' ') + text + std::string(rightPadding, ' ');
+    }
+
     string to_string() {
         stringstream ss;
-        ss << "[PID " << pid << "]" << endl;
-        ss << " - STATE: " << (state == NEW ? "NEW" : state == READY ? "READY" : state == BLOCKED ? "BLOCKED" : state == RUNNING ? "RUNNING" : "TERMINATED") << endl;
-        // ss << " - INTRUÇÕES: " << endl <<  getInstructions() << endl;
-        ss << " - ARRIVAL TIME: " << arrivalTime << endl;
-        ss << " - PERIOD: " << period << endl;
-        ss << " - DEADLINE: " << deadline << endl;
-        ss << " - WCET: " << wcet << endl;
-        ss << " - REMAINING TIME: " << remainingTime << endl;
+        string stateStr = (state == NEW ? "NEW" : state == READY ? "READY" : state == BLOCKED ? "BLOCKED" : state == RUNNING ? "RUNNING" : "TERMINATED");
+        ss << "| PID |   STATE   | ARRIVAL TIME | PERIOD | DEADLINE | WCET | REMAINING TIME |" << endl;
+        ss << "| " << centerText(std::to_string(pid), 3) << " |" 
+        << " " << centerText(stateStr, 9) << " |"
+        << " " << centerText(std::to_string(arrivalTime), 13) << "|"
+        << " " << centerText(std::to_string(period), 7) << "|"
+        << " " << centerText(std::to_string(deadline), 9) << "|"
+        << " " << centerText(std::to_string(wcet), 5) << "|"
+        << " " << centerText(std::to_string(remainingTime), 15) << "|" << endl;
         return ss.str();
     }
 

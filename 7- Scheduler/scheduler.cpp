@@ -42,7 +42,7 @@ public:
         pcb->interpreter.setPC(0);
         pcb->interpreter.setACC(0);
         pcb->pc_pcb = pcb->acc_pcb = 0;
-        cout << "Terminated " << pcb->to_string() << endl;
+        cout << "Terminated " << endl << pcb->to_string() << endl;
     }
 
     void blockPCB(PCB* pcb, int syscallCode) {
@@ -137,7 +137,7 @@ private:
             runningPCB = pcbs_ready.front();
             pcbs_ready.erase(pcbs_ready.begin());
             runningPCB->state = RUNNING;
-            cout << "Running " << runningPCB->to_string() << endl;
+            cout << "Running " << endl << runningPCB->to_string() << endl;
         }
     }
 };

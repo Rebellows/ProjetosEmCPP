@@ -2,8 +2,7 @@
   load controle		
   syscall 2		
   store controle	
-loop:
-  BRZERO fim		
+loop:BRZERO fim		
   load a		
   add b			
   store aux		
@@ -15,8 +14,7 @@ loop:
   sub #1		
   store controle	
   BRANY loop
-fim:
-  load b		
+fim:load b		
   syscall 1		
   syscall 0
 .endcode

@@ -1,6 +1,6 @@
 #include "interpreter.cpp"
 
-enum ProcessState {NEW, READY, WAITING, RUNNING, TERMINATED};
+enum ProcessState {NEW, READY, BLOCKED, RUNNING, TERMINATED};
 
 struct PCB {
     int pid;
@@ -21,7 +21,7 @@ struct PCB {
         ss << "Deadline: " << deadline << endl;
         ss << "WCET: " << wcet << endl;
         ss << "Remaining Time: " << remainingTime << endl;
-        ss << "State: " << (state == NEW ? "NEW" : state == READY ? "READY" : state == WAITING ? "WAITING" : state == RUNNING ? "RUNNING" : "TERMINATED") << endl;
+        ss << "State: " << (state == NEW ? "NEW" : state == READY ? "READY" : state == BLOCKED ? "BLOCKED" : state == RUNNING ? "RUNNING" : "TERMINATED") << endl;
         return ss.str();
     }
 
@@ -36,6 +36,6 @@ struct PCB {
         remainingTime = wcet;
         instructions = i;
         data = d;
-        state = READY;
+        state = NEW;
     }
 };

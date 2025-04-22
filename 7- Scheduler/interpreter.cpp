@@ -13,7 +13,7 @@ private:
     void mapLabels() {
         for (int i = 0; i < instructions.size(); i++) {
             if (!instructions[i].label.empty()) {
-                labels[instructions[i].label] = i+1;
+                labels[instructions[i].label] = i;
             }
         }
     }
@@ -33,14 +33,15 @@ private:
         pc++;
         switch (syscallNumber) {
             case 0:
-            getSyscallCode(1); 
+                getSyscallCode(1); 
                 // cout << "Program finished" << endl;
                 // exit(0); // ainda entender se aqui eh exit mesmo
                 break;                
             case 1:
-                cout << acc << endl;
+                cout <<"Syscal1" << acc << endl;
                 break;
             case 2:
+                cout<<"syscal2"<<endl;
                 cin >> acc;
                 break;
             default:

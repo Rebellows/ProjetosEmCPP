@@ -4,6 +4,7 @@
 class Scheduler {
 public:
     Scheduler() : runningPCB(nullptr) {
+        // Inicializa o scheduler
         
     }
 
@@ -27,52 +28,53 @@ public:
         sortReadyQueue();
         runningPCB = pcbs_ready.front();
         pcbs_ready.erase(pcbs_ready.begin());
-        runningPCB->state = RUNNING;
+        if (runningPCB->state != BLOCKED) runningPCB->state = RUNNING;
         cout << "Running " << runningPCB->to_string() << endl;
         return runningPCB;
     }
 
-    void removePCB(PCB* pcb) {
+    void removePCB(PCB* pcb, int currentTime) {
         if (runningPCB == pcb) runningPCB = nullptr;
-        pcb->state = TERMINATED;
-        pcbs_ready.erase(remove(pcbs_ready.begin(), pcbs_ready.end(), pcb),
-                         pcbs_ready.end());
+        pcb->state = NEW;
+        pcb->remainingTime = pcb->wcet;
+        pcb->arrivalTime =  currentTime + pcb->period;
+        pcb->deadline = pcb->arrivalTime + pcb->period;
+        pcb->interpreter.setPC(0);
+        pcb->interpreter.setACC(0);
+        pcb->pc_pcb = pcb->acc_pcb = 0;
         cout << "Terminated " << pcb->to_string() << endl;
     }
 
     void blockPCB(PCB* pcb, int syscallCode) {
        
         
-        pcb->state = WAITING;
+        pcb->state = BLOCKED;
         
         int blockDuration = 1 + rand() % 3;  // valor de 1 a 3
         pcb->blockedRemainingTime = blockDuration;
         
-        pcbs_waiting.push_back(pcb);
-        
         cout << "Process " << pcb->pid << " blocked, CPU now idle." << endl;
         cout << "Process " << pcb->pid << " blocked for " << blockDuration << " ticks." << endl;
-      
+        
         
     }
     
 
-    void tick(int currentTime, bool flag_sys) {
+    void tick(int currentTime, bool flag_sys, PCB* pcb) {
         
-        cout<< pcbs_ready.size() << " processos prontos, "
-            << pcbs_waiting.size() << " bloqueados, "
-            << (runningPCB ? "1 em execução" : "nenhum em execução") << endl;
-        
+        cout<< pcbs_ready.size() << " processos prontos, " << endl;
          
         // 1) Atualiza bloqueados
-        for (int i = 0; i < pcbs_waiting.size(); ++i) {
-            PCB* p = pcbs_waiting[i];
-            if (--p->blockedRemainingTime <= 0) {
-                p->state = READY;
-                pcbs_ready.push_back(p);
-                pcbs_waiting.erase(pcbs_waiting.begin() + i--);
+        cout<<pcb->to_string()<<endl;
+        if(pcb != nullptr && pcb->state == BLOCKED) {
+            if (--pcb->blockedRemainingTime < 0) {
+                cout<< "[Desbloqueado] PID " << pcb->pid << " no t=" << currentTime << endl;
+                pcb->state = READY;
+                pcbs_ready.push_back(pcb);
+                
             }
         }
+        
         
         // 2) Tratar deadlines perdidos
         for (PCB* p : pcbs_ready) {
@@ -90,30 +92,28 @@ public:
         // 3) Preempção se necessário
         sortReadyQueue();
         checkPreemption();
-        
+
         // 4) Executa “um tick” no runningPCB
         if (runningPCB) {
             if (--runningPCB->remainingTime <= 0) {
-                cout<<"oi"<<endl;
                 // Termina aqui
                 cout << "[Concluído] PID " << runningPCB->pid << " no t=" << currentTime << endl;
-                removePCB(runningPCB);
+                removePCB(runningPCB, currentTime);
             }
         }
         cout<<runningPCB->to_string()<<endl;
         if (flag_sys) {
-            cout << "Syscall0 detected, blocking process." << endl;
-            delete runningPCB;
+            cout << "Syscall0 detected," << endl;
+            cout << "[Concluído] PID " << runningPCB->pid << " no t=" << currentTime << endl;
+            removePCB(runningPCB, currentTime);
             runningPCB = nullptr;
         }
     }
 
-    int getPCBCount() const {
-        return pcbs_ready.size() + pcbs_waiting.size() + (runningPCB ? 1 : 0);
-    }
+
 
 private:
-    vector<PCB*> pcbs_ready, pcbs_waiting;
+    vector<PCB*> pcbs_ready;
     PCB* runningPCB;
 
     void sortReadyQueue() {

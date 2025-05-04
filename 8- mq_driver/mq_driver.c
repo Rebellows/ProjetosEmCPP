@@ -40,7 +40,7 @@ struct process_s {
 	struct list_head link;
 	char *name;
 	pid_t pid;
-	struct list_head messages; // eh uma lista mas vai ser a fila de mensagens (queue_head nao ta tendo)
+	struct list_head messages; // eh uma lista mas vai ser a fila de mensagens ja que nao tem queue_head
 	int msg_count;
 }
 
@@ -144,6 +144,58 @@ int remove_process(char *name, pid_t pid) {
 	process_count--;
 	
 	printk(KERN_INFO "Process %s with pid %d removed.\n", name, pid);
+
+	return 0;
+}
+
+int add_message(char *name, char *message, int message_size) {
+	struct process_s *entry = NULL;
+	struct message_s *msg = NULL;
+	
+	entry = find_process_by_name(name);
+	
+	if (!entry) {
+		printk(KERN_INFO "Process %s is not registered.\n", name);
+		return 1;
+	}
+
+	if (message_size > max_message_size) {
+		printk(KERN_INFO "Message is too long, maximum size is %d. The message will be truncated.\n", max_message_size);
+		message_size = max_message_size;
+	}
+
+	msg = kmalloc(sizeof(struct message_s), GFP_KERNEL);
+	
+	if (!msg) {
+		printk(KERN_INFO "Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
+		return 1;
+	}
+
+	msg->message = kmalloc(message_size, GFP_KERNEL);
+	
+	if (!msg->message) {
+		printk(KERN_INFO "Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
+		kfree(msg);
+		return 1;
+	}
+
+	strcpy(msg->message, message);
+	msg->message[message_size] = '\0';
+	msg->size = message_size;
+	
+	if (entry->msg_count >= max_messages) {
+		struct message_s *tmp = list_first_entry(&entry->messages, struct message_s, link);
+		list_del(&tmp->link);
+		kfree(tmp->message);
+		kfree(tmp);
+		entry->msg_count--;
+		printk(KERN_INFO "Removed old message.\n");
+	}
+
+	list_add_tail(&msg->link, &entry->messages);
+	entry->msg_count++;
+	
+	printk(KERN_INFO "Message added to process %s with pid %d.\n", name, entry->pid);
 
 	return 0;
 }

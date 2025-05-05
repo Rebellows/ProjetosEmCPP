@@ -148,7 +148,7 @@ int remove_process(char *name, pid_t pid) {
 	return 0;
 }
 
-int add_message(char *name, char *message, int message_size) {
+int send_message(char *name, char *message, int message_size) {
 	struct process_s *entry = NULL;
 	struct message_s *msg = NULL;
 	
@@ -198,6 +198,46 @@ int add_message(char *name, char *message, int message_size) {
 	printk(KERN_INFO "Message added to process %s with pid %d.\n", name, entry->pid);
 
 	return 0;
+}
+
+int send_message_to_all(char *message, int message_size) {
+	struct process_s *entry = NULL;
+	int count = 0;
+	
+	list_for_each_entry(entry, &process_list, link) {
+		send_message(entry->name, message, message_size);
+		count++;
+	}
+	
+	printk(KERN_INFO "Message sent to %d processes.\n", count);
+
+	return 0;
+}
+
+struct message_s *read_message(pid_t pid) {
+	struct process_s *entry = NULL;
+	struct message_s *msg = NULL;
+	
+	entry = find_process_by_pid(pid);
+	
+	if (!entry) {
+		printk(KERN_INFO "Process with pid %d is not registered.\n", pid);
+		return NULL;
+	}
+
+	if (entry->msg_count == 0) {
+		printk(KERN_INFO "Process %s with pid %d has no messages.\n", entry->name, pid);
+		return NULL;
+	}
+	
+	msg = list_first_entry(&entry->messages, struct message_s, link);
+	
+	list_del(&msg->link);
+	entry->msg_count--;
+
+	printk(KERN_INFO "Message read from process %s with pid %d.\n", entry->name, pid);
+	
+	return msg;
 }
 
 // pra baixo eh codigo do sor

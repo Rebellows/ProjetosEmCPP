@@ -88,24 +88,24 @@ int register_process(char *name, pid_t pid) {
 	struct process_s *entry = NULL;
 	
 	if (process_count >= max_processes) {
-		printk(KERN_INFO "Maximum number of processes reached: %d.\n", max_processes);
+		printk(KERN_INFO "MQ Driver: Maximum number of processes reached: %d.\n", max_processes);
 		return 1;
 	}
 	
 	if (find_process_by_name(name) != NULL) {
-		printk(KERN_INFO "Process %s is already registered.\n", name);
+		printk(KERN_INFO "MQ Driver: Process %s is already registered.\n", name);
 		return 1;
 	}
 
 	if (find_process_by_pid(pid) != NULL) {
-		printk(KERN_INFO "Process with pid %d is already registered.\n", pid);
+		printk(KERN_INFO "MQ Driver: Process with pid %d is already registered.\n", pid);
 		return 1;
 	}
 
 	entry = kmalloc(sizeof(struct process_s), GFP_KERNEL);
 	
 	if (!entry) {
-		printk(KERN_INFO "Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
+		printk(KERN_INFO "MQ Driver: Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
 		return 1;
 	}
 
@@ -116,7 +116,7 @@ int register_process(char *name, pid_t pid) {
 	list_add_tail(&entry->link, &process_list);
 	process_count++;
 	
-	printk(KERN_INFO "Process %s registered with pid %d.\n", name, pid);
+	printk(KERN_INFO "MQ Driver: Process %s registered with pid %d.\n", name, pid);
 
 	return 0;
 }
@@ -128,7 +128,7 @@ int remove_process(char *name, pid_t pid) {
 	entry = find_process_by_pid(pid);
 	
 	if (!entry) {
-		printk(KERN_INFO "Process with pid %d is not registered.\n", pid);
+		printk(KERN_INFO "MQ Driver: Process with pid %d is not registered.\n", pid);
 		return 1;
 	}
 
@@ -143,7 +143,7 @@ int remove_process(char *name, pid_t pid) {
 	kfree(entry);
 	process_count--;
 	
-	printk(KERN_INFO "Process %s with pid %d removed.\n", name, pid);
+	printk(KERN_INFO "MQ Driver: Process %s with pid %d removed.\n", name, pid);
 
 	return 0;
 }
@@ -155,26 +155,26 @@ int send_message(char *name, char *message, int message_size) {
 	entry = find_process_by_name(name);
 	
 	if (!entry) {
-		printk(KERN_INFO "Process %s is not registered.\n", name);
+		printk(KERN_INFO "MQ Driver: Process %s is not registered.\n", name);
 		return 1;
 	}
 
 	if (message_size > max_message_size) {
-		printk(KERN_INFO "Message is too long, maximum size is %d. The message will be truncated.\n", max_message_size);
+		printk(KERN_INFO "MQ Driver: Message is too long, maximum size is %d. The message will be truncated.\n", max_message_size);
 		message_size = max_message_size;
 	}
 
 	msg = kmalloc(sizeof(struct message_s), GFP_KERNEL);
 	
 	if (!msg) {
-		printk(KERN_INFO "Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
+		printk(KERN_INFO "MQ Driver: Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
 		return 1;
 	}
 
 	msg->message = kmalloc(message_size, GFP_KERNEL);
 	
 	if (!msg->message) {
-		printk(KERN_INFO "Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
+		printk(KERN_INFO "MQ Driver: Memory allocation failed, this should never fail due to GFP_KERNEL flag\n");
 		kfree(msg);
 		return 1;
 	}
@@ -189,13 +189,13 @@ int send_message(char *name, char *message, int message_size) {
 		kfree(tmp->message);
 		kfree(tmp);
 		entry->msg_count--;
-		printk(KERN_INFO "Removed old message.\n");
+		printk(KERN_INFO "MQ Driver: Removed old message.\n");
 	}
 
 	list_add_tail(&msg->link, &entry->messages);
 	entry->msg_count++;
 	
-	printk(KERN_INFO "Message added to process %s with pid %d.\n", name, entry->pid);
+	printk(KERN_INFO "MQ Driver: Message added to process %s with pid %d.\n", name, entry->pid);
 
 	return 0;
 }
@@ -209,7 +209,7 @@ int send_message_to_all(char *message, int message_size) {
 		count++;
 	}
 	
-	printk(KERN_INFO "Message sent to %d processes.\n", count);
+	printk(KERN_INFO "MQ Driver: Message sent to %d processes.\n", count);
 
 	return 0;
 }
@@ -221,12 +221,12 @@ struct message_s *read_message(pid_t pid) {
 	entry = find_process_by_pid(pid);
 	
 	if (!entry) {
-		printk(KERN_INFO "Process with pid %d is not registered.\n", pid);
+		printk(KERN_INFO "MQ Driver: Process with pid %d is not registered.\n", pid);
 		return NULL;
 	}
 
 	if (entry->msg_count == 0) {
-		printk(KERN_INFO "Process %s with pid %d has no messages.\n", entry->name, pid);
+		printk(KERN_INFO "MQ Driver: Process %s with pid %d has no messages.\n", entry->name, pid);
 		return NULL;
 	}
 	
@@ -235,115 +235,87 @@ struct message_s *read_message(pid_t pid) {
 	list_del(&msg->link);
 	entry->msg_count--;
 
-	printk(KERN_INFO "Message read from process %s with pid %d.\n", entry->name, pid);
+	printk(KERN_INFO "MQ Driver: Message read from process %s with pid %d.\n", entry->name, pid);
 	
 	return msg;
 }
 
 // pra baixo eh codigo do sor
 
-void list_show(void)
+static int mq_init(void)
 {
-	struct message_s *entry = NULL;
-	int i = 0;
-	
-	list_for_each_entry(entry, &list, link) {
-		printk(KERN_INFO "Message #%d: %s\n", i++, entry->message);
-	}
-}
+	printk(KERN_INFO "MQ Driver: Initializing the LKM\n");
 
-int list_delete_head(void)
-{
-	struct message_s *entry = NULL;
-	
-	if (list_empty(&list)) {
-		printk(KERN_INFO "Empty list.\n");
-		
-		return 1;
-	}
-	
-	entry = list_first_entry(&list, struct message_s, link);
-	
-	list_del(&entry->link);
-	kfree(entry);
-		
-	return 0;
-}
-
-int list_delete_entry(char *data)
-{
-	struct message_s *entry = NULL;
-	
-	list_for_each_entry(entry, &list, link) {
-		if (strcmp(entry->message, data) == 0) {
-			list_del(&(entry->link));
-			kfree(entry);
-			
-			return 0;
-		}
-	}
-	
-	printk(KERN_INFO "Could not find data.");
-	
-	return 1;
-}
-
-static int simple_init(void)
-{
-	printk(KERN_INFO "Simple Driver: Initializing the LKM\n");
-
-	// Try to dynamically allocate a major number for the device -- more difficult but worth it
 	majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
 	if (majorNumber < 0) {
-		printk(KERN_ALERT "Simple Driver failed to register a major number\n");
+		printk(KERN_ALERT "MQ Driver: failed to register a major number\n");
 		return majorNumber;
 	}
 	
-	printk(KERN_INFO "Simple Driver: registered correctly with major number %d\n", majorNumber);
+	printk(KERN_INFO "MQ Driver: registered correctly with major number %d\n", majorNumber);
 
-	// Register the device class
 	charClass = class_create(THIS_MODULE, CLASS_NAME);
-	if (IS_ERR(charClass)) {		// Check for error and clean up if there is
+	if (IS_ERR(charClass)) {		
 		unregister_chrdev(majorNumber, DEVICE_NAME);
-		printk(KERN_ALERT "Simple Driver: failed to register device class\n");
-		return PTR_ERR(charClass);	// Correct way to return an error on a pointer
+		printk(KERN_ALERT "MQ Driver: failed to register device class\n");
+		return PTR_ERR(charClass);	
 	}
 	
-	printk(KERN_INFO "Simple Driver: device class registered correctly\n");
+	printk(KERN_INFO "MQ Driver: device class registered correctly\n");
 
-	// Register the device driver
 	charDevice = device_create(charClass, NULL, MKDEV(majorNumber, 0), NULL, DEVICE_NAME);
-	if (IS_ERR(charDevice)) {		// Clean up if there is an error
+	if (IS_ERR(charDevice)) {		
 		class_destroy(charClass);
 		unregister_chrdev(majorNumber, DEVICE_NAME);
-		printk(KERN_ALERT "Simple Driver: failed to create the device\n");
+		printk(KERN_ALERT "MQ Driver: failed to create the device\n");
 		return PTR_ERR(charDevice);
 	}
 	
-	printk(KERN_INFO "Simple Driver: device class created.\n");
+	printk(KERN_INFO "MQ Driver: device class created.\n");
 	
 	INIT_LIST_HEAD(&list);
 		
 	return 0;
 }
 
-static void simple_exit(void)
-{
+static void mq_exit(void) {
+	struct process_s *entry = NULL, *p_tmp = NULL;
+	struct message_s *msg = NULL, *m_tmp = NULL;
+
+	list_for_each_entry_safe(entry, p_tmp, &process_list, link) {
+		list_for_each_entry_safe(msg, m_tmp, &entry->messages, link) {
+			list_del(&msg->link);
+			kfree(msg->message);
+			kfree(msg);
+		}
+		list_del(&entry->link);
+		kfree(entry->name);
+		kfree(entry);
+		process_count--;
+	}
+
 	device_destroy(charClass, MKDEV(majorNumber, 0));
 	class_unregister(charClass);
 	class_destroy(charClass);
 	unregister_chrdev(majorNumber, DEVICE_NAME);
-	printk(KERN_INFO "Simple Driver: goodbye.\n");
+	printk(KERN_INFO "MQ Driver: goodbye.\n");
 }
 
-static int dev_open(struct inode *inodep, struct file *filep)
-{
+static int dev_open(struct inode *inodep, struct file *filep) {
 	number_opens++;
-	printk(KERN_INFO "Simple Driver: device has been opened %d time(s)\n", number_opens);
+	printk(KERN_INFO "MQ Driver: device has been opened %d time(s)\n", number_opens);
 	printk("Process id: %d, name: %s\n", (int) task_pid_nr(current), current->comm);
 
 	return 0;
 }
+
+static int dev_release(struct inode *inodep, struct file *filep) {
+	printk(KERN_INFO "MQ Driver: device successfully closed\n");
+
+	return 0;
+}
+
+// falta atualizar esses dois do codigo do sor
 
 static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
@@ -387,12 +359,5 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
 	}
 }
 
-static int dev_release(struct inode *inodep, struct file *filep)
-{
-	printk(KERN_INFO "Simple Driver: device successfully closed\n");
-
-	return 0;
-}
-
-module_init(simple_init);
-module_exit(simple_exit);
+module_init(mq_init);
+module_exit(mq_exit);
